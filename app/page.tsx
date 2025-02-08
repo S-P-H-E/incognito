@@ -167,41 +167,45 @@ export default function TempMail() {
   };
 
   // Create new account
+  function generateRandomString(length = 8): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}[]<>?/=";
+    return Array.from({ length }, () => 
+      chars.charAt(Math.floor(Math.random() * chars.length))
+    ).join('');
+  }
+  
   const createAccount = async () => {
-    if (!username || !customPassword) {
-      alert("Please enter a username and password.");
-      return;
-    }
-    const newEmail = `${username}@${domain}`;
-    const existingToken = await checkAccountExists(newEmail, customPassword);
+    // If user didn't provide a username/password, generate them
+    const finalUsername = username || generateRandomString();
+    const finalPassword = customPassword || generateRandomString();
+  
+    const newEmail = `${finalUsername}@${domain}`;
+    const existingToken = await checkAccountExists(newEmail, finalPassword);
+  
     if (existingToken) {
+      // Existing user
       setEmail(newEmail);
-      setPassword(customPassword);
+      setPassword(finalPassword);
       setToken(existingToken);
-      localStorage.setItem('tempEmail', newEmail);
-      localStorage.setItem('tempPassword', customPassword);
-      localStorage.setItem('tempToken', existingToken);
-      return;
-    }
-    try {
+    } else {
+      // Create new user
       const res = await fetch('/api/temp-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newEmail, password: customPassword })
+        body: JSON.stringify({ email: newEmail, password: finalPassword }),
       });
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
       const data = await res.json();
       setEmail(newEmail);
-      setPassword(customPassword);
+      setPassword(finalPassword);
       setToken(data.token);
       setStorageUsed(0);
-      localStorage.setItem('tempEmail', newEmail);
-      localStorage.setItem('tempPassword', customPassword);
-      localStorage.setItem('tempToken', data.token);
-    } catch (err) {
-      console.error('Error creating account:', err);
     }
-  };
+    // Cache locally
+    localStorage.setItem('tempEmail', newEmail);
+    localStorage.setItem('tempPassword', finalPassword);
+    localStorage.setItem('tempToken', token);
+  };  
 
   const formatStorage = (used: number) =>
     used < 1024
