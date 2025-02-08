@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 
 const TEMP_MAIL_API = 'https://api.mail.tm';
 
@@ -28,13 +28,14 @@ async function fetchWithRetry(
 ) {
   try {
     return await axios(url, options);
-  } catch (error: any) {
-    if (error.response && error.response.status === 429 && retries > 0) {
+  } catch (error: unknown) {
+    const typedError = error as AxiosError;
+    if (typedError.response && typedError.response.status === 429 && retries > 0) {
       console.warn(`Rate limit hit. Retrying in ${delay / 1000} seconds...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
       return fetchWithRetry(url, options, retries - 1, delay * 2);
     }
-    throw error;
+    throw typedError;
   }
 }
 
@@ -81,9 +82,10 @@ export async function POST() {
       token: cachedToken,
       lastGenerated
     });
-  } catch (error: any) {
-    console.error("Mail.tm API Error:", error.response?.data || error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const typedError = error as AxiosError;
+    console.error("Mail.tm API Error:", typedError.response?.data || typedError.message);
+    return NextResponse.json({ error: typedError.message }, { status: 500 });
   }
 }
 
