@@ -287,6 +287,10 @@ export default function TempMail() {
               </div>
             </div>
             <hr />
+            <div className='text-gray-500 text-xs'>
+                Created using <a href='https://mail.tm/' className='underline' target='_blank'>mail.tm</a>
+            </div>
+            <hr />
             {/* Storage Usage */}
             <div className="flex flex-col gap-2">
               <p className="text-xs text-gray-500">{formatStorage(storageUsed)}</p>
