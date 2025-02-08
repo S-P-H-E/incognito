@@ -229,7 +229,7 @@ export default function TempMail() {
 
     const messageInterval = setInterval(() => {
       if (token) fetchMessages(token);
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(messageInterval);
   }, [token]);
@@ -296,14 +296,14 @@ export default function TempMail() {
               <p className="text-xs text-gray-500">{formatStorage(storageUsed)}</p>
               <Progress value={(storageUsed / (storageTotalMB * 1024)) * 100} />
             </div>
-            <hr />
+            {/* <hr /> */}
             {/* Create New Account */}
             <Dialog>
               <DialogTrigger>
-                <div className='flex items-center gap-2 font-semibold transition-all hover:text-[#646464]'>
+                {/* <div className='flex items-center gap-2 font-semibold transition-all hover:text-[#646464]'>
                   <FiUser />
                   <p className='text-sm'>Create New Account</p>
-                </div>
+                </div> */}
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
