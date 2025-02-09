@@ -361,7 +361,7 @@ export default function TempMail() {
         fetchMessages(token);
         fetchStorageUsage(token);
       }
-    }, 10000);
+    }, 30000);
     return () => clearInterval(interval);
   }, [token]);
 
