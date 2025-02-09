@@ -22,7 +22,6 @@ interface EmailMessage {
 interface FullEmailMessage extends EmailMessage {
   html?: string;
   text?: string;
-  // Attachments functionality removed.
 }
 
 export default function TempMail() {
@@ -97,7 +96,7 @@ export default function TempMail() {
       const randomEmail = `${localPart}@${currentDomain}`;
       const randomPassword = generateRandomString(10);
       console.log("Generating random email =>", randomEmail);
-      toast.info("Random account generated");
+      toast.info("Random account generated", { toastId: "random-account-generated" });
 
       const createRes = await fetch("https://api.mail.tm/accounts", {
         method: "POST",
@@ -131,13 +130,13 @@ export default function TempMail() {
 
       fetchMessages(tokenData.token);
       fetchStorageUsage(tokenData.token);
-      toast.success("Account created and logged in successfully");
+      toast.success("Account created and logged in successfully", { toastId: "account-created-logged-in" });
     } catch (err: unknown) {
       console.error("Error generating random email:", err);
       if (err instanceof Error) {
-        toast.error("Error generating random account: " + err.message);
+        toast.error("Error generating random account: " + err.message, { toastId: "error-generating-account" });
       } else {
-        toast.error("Error generating random account");
+        toast.error("Error generating random account", { toastId: "error-generating-account" });
       }
     }
   };
@@ -165,9 +164,9 @@ export default function TempMail() {
         setToken(loginData.token);
         fetchMessages(loginData.token);
         fetchStorageUsage(loginData.token);
-        toast.success("Logged in successfully");
+        toast.success("Logged in successfully", { toastId: "login-success" });
       } else if (loginRes.status === 401) {
-        toast.error("Invalid credentials");
+        toast.error("Invalid credentials", { toastId: "invalid-credentials" });
       } else {
         // Account does not exist — create it.
         const createRes = await fetch("https://api.mail.tm/accounts", {
@@ -178,7 +177,7 @@ export default function TempMail() {
         if (!createRes.ok) {
           throw new Error("Error creating account, status: " + createRes.status);
         }
-        toast.success("Account created successfully");
+        toast.success("Account created successfully", { toastId: "account-created-success" });
         // Log in after creation.
         const tokenRes = await fetch("https://api.mail.tm/token", {
           method: "POST",
@@ -197,14 +196,14 @@ export default function TempMail() {
         setToken(tokenData.token);
         fetchMessages(tokenData.token);
         fetchStorageUsage(tokenData.token);
-        toast.success("Logged in successfully");
+        toast.success("Logged in successfully", { toastId: "login-success-after-creation" });
       }
     } catch (error: unknown) {
       console.error("Error in createAccount:", error);
       if (error instanceof Error) {
-        toast.error("Error creating account: " + error.message);
+        toast.error("Error creating account: " + error.message, { toastId: "error-creating-account" });
       } else {
-        toast.error("Error creating account");
+        toast.error("Error creating account", { toastId: "error-creating-account" });
       }
     }
   };
@@ -221,9 +220,9 @@ export default function TempMail() {
     } catch (err: unknown) {
       console.error("Error fetching messages:", err);
       if (err instanceof Error) {
-        toast.error("Error fetching messages: " + err.message);
+        toast.error("Error fetching messages: " + err.message, { toastId: "error-fetch-messages" });
       } else {
-        toast.error("Error fetching messages");
+        toast.error("Error fetching messages", { toastId: "error-fetch-messages" });
       }
     }
   };
@@ -240,9 +239,9 @@ export default function TempMail() {
     } catch (err: unknown) {
       console.error("Error fetching full message:", err);
       if (err instanceof Error) {
-        toast.error("Error fetching email: " + err.message);
+        toast.error("Error fetching email: " + err.message, { toastId: "error-fetch-email" });
       } else {
-        toast.error("Error fetching email");
+        toast.error("Error fetching email", { toastId: "error-fetch-email" });
       }
     }
   };
@@ -260,7 +259,7 @@ export default function TempMail() {
       if (!res.ok) {
         console.error("Storage usage response status:", res.status);
         if (res.status === 401) {
-          toast.error("Session expired. Please log in again.");
+          toast.error("Session expired. Please log in again.", { toastId: "session-expired" });
           localStorage.removeItem("tempEmail");
           localStorage.removeItem("tempPassword");
           localStorage.removeItem("tempToken");
@@ -280,9 +279,9 @@ export default function TempMail() {
     } catch (err: unknown) {
       console.error("Error fetching storage usage:", err);
       if (err instanceof Error) {
-        toast.error("Error fetching storage usage: " + err.message);
+        toast.error("Error fetching storage usage: " + err.message, { toastId: "error-fetch-storage" });
       } else {
-        toast.error("Error fetching storage usage");
+        toast.error("Error fetching storage usage", { toastId: "error-fetch-storage" });
       }
     }
   };
@@ -326,8 +325,8 @@ export default function TempMail() {
   const handleCopy = () => {
     if (!email) return;
     navigator.clipboard.writeText(email).then(() => {
+      toast.success("Email copied!", { toastId: "email-copied" });
       setCopied(true);
-      toast.success("Email copied!");
       setTimeout(() => setCopied(false), 1000);
     });
   };
@@ -354,7 +353,7 @@ export default function TempMail() {
     })();
   }, [generateRandomEmail]);
 
-  // Polling: fetch messages and storage usage every 10 seconds.
+  // Polling: fetch messages and storage usage every 30 seconds.
   useEffect(() => {
     const interval = setInterval(() => {
       if (token) {
