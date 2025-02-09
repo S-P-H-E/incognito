@@ -351,7 +351,7 @@ export default function TempMail() {
         await generateRandomEmail();
       }
     })();
-  }, [generateRandomEmail]);
+  }, []);
 
   // Polling: fetch messages and storage usage every 30 seconds.
   useEffect(() => {
