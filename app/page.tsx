@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LuMail } from "react-icons/lu";
-import { FaRegCircleCheck } from "react-icons/fa6";
 import { FiArrowLeft } from "react-icons/fi";
 import Navbar from "@/components/Navbar";
 import { EventSourcePolyfill } from "event-source-polyfill";
@@ -134,9 +132,13 @@ export default function TempMail() {
       fetchMessages(tokenData.token);
       fetchStorageUsage(tokenData.token);
       toast.success("Account created and logged in successfully");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error generating random email:", err);
-      toast.error("Error generating random account: " + err.message);
+      if (err instanceof Error) {
+        toast.error("Error generating random account: " + err.message);
+      } else {
+        toast.error("Error generating random account");
+      }
     }
   };
 
@@ -197,9 +199,13 @@ export default function TempMail() {
         fetchStorageUsage(tokenData.token);
         toast.success("Logged in successfully");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error in createAccount:", error);
-      toast.error("Error creating account: " + error.message);
+      if (error instanceof Error) {
+        toast.error("Error creating account: " + error.message);
+      } else {
+        toast.error("Error creating account");
+      }
     }
   };
 
@@ -212,9 +218,13 @@ export default function TempMail() {
       if (!res.ok) throw new Error(`Error fetching messages. Status: ${res.status}`);
       const data = await res.json();
       setMessages(data["hydra:member"] || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching messages:", err);
-      toast.error("Error fetching messages: " + err.message);
+      if (err instanceof Error) {
+        toast.error("Error fetching messages: " + err.message);
+      } else {
+        toast.error("Error fetching messages");
+      }
     }
   };
 
@@ -227,15 +237,14 @@ export default function TempMail() {
       if (!res.ok) throw new Error(`Error fetching full message. Status: ${res.status}`);
       const data = await res.json();
       setFullMessage(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching full message:", err);
-      toast.error("Error fetching email: " + err.message);
+      if (err instanceof Error) {
+        toast.error("Error fetching email: " + err.message);
+      } else {
+        toast.error("Error fetching email");
+      }
     }
-  };
-
-  const handleSelectMessage = (msg: EmailMessage) => {
-    setSelectedMessage(msg);
-    fetchFullMessage(msg.id);
   };
 
   // Fetch storage usage
@@ -268,9 +277,13 @@ export default function TempMail() {
         setStorageUsed(data.used);
         console.log("Account storage usage:", data);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching storage usage:", err);
-      toast.error("Error fetching storage usage: " + err.message);
+      if (err instanceof Error) {
+        toast.error("Error fetching storage usage: " + err.message);
+      } else {
+        toast.error("Error fetching storage usage");
+      }
     }
   };
 
@@ -296,11 +309,11 @@ export default function TempMail() {
               }
             });
           }
-        } catch (e: any) {
+        } catch (e: unknown) {
           console.error("Error parsing Mercure event data:", e);
         }
       };
-      es.onerror = (err: any) => {
+      es.onerror = (err: unknown) => {
         console.error("Error with Mercure SSE:", err);
       };
       return () => {
@@ -339,7 +352,7 @@ export default function TempMail() {
         await generateRandomEmail();
       }
     })();
-  }, []);
+  }, [generateRandomEmail]);
 
   // Polling: fetch messages and storage usage every 10 seconds.
   useEffect(() => {
